@@ -46,3 +46,24 @@ After installing and unzipping SymCrypt on a Linux distro, the required `libsymc
 `~/Your-Path-To-SymCrypt-Release-Download/lib/`
 
 The symcrypt crate needs to be able to link with these libs during build/run time. In order to mimic the installation path for other libraries, you must place the `libsymcrypt.so*` files into linker load path. The way that this is set will vary between distros. On most distros it set via the environment variable `$LD_LIBRARY_PATH`.
+
+Alternatively, you can point the build script directly at the folder containing the `libsymcrypt.so*` files by setting the `SYMCRYPT_LIB_PATH` environment variable, e.g.:
+
+```bash
+export SYMCRYPT_LIB_PATH=/your/path/to/symcrypt/lib
+```
+
+When set, the crate adds the path to the linker search path and embeds it as an rpath so that the resulting binary can locate `libsymcrypt.so` at runtime without requiring `$LD_LIBRARY_PATH` to be set.
+
+### Per-target environment variables
+
+When cross-compiling (or building for multiple targets from the same shell) you can specify a different path per target by prefixing the variable with the uppercased target triple (with dashes replaced by underscores). The target-specific variable takes precedence over the generic one. For example:
+
+```bash
+# Used only when building for x86_64-unknown-linux-gnu
+export X86_64_UNKNOWN_LINUX_GNU_SYMCRYPT_LIB_PATH=/path/for/x86_64
+# Used only when building for aarch64-unknown-linux-gnu
+export AARCH64_UNKNOWN_LINUX_GNU_SYMCRYPT_LIB_PATH=/path/for/aarch64
+# Fallback used for any target where the target-specific variable is unset
+export SYMCRYPT_LIB_PATH=/default/path
+```
